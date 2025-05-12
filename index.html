@@ -3,141 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trading Dashboard</title>
+  <title>Trading Journal Dashboard</title>
   <style>
-    :root {
-      --bg: #111;
-      --text: #eee;
-      --card-bg: #1e1e1e;
-      --accent: #27ae60;
-      --danger: #e74c3c;
-      --neutral: #555;
-      --star-green: #27ae60;
-      --star-yellow: #f1c40f;
-      --star-red: #e74c3c;
-    }
-
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: #111;
+      color: #eee;
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 1rem;
     }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+    h1, h2, h3 {
+      margin: 0.5rem 0;
     }
-
-    h1 {
-      font-size: 1.8rem;
+    .journal-section, .upload-section, .dashboard {
+      margin-bottom: 1rem;
     }
-
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #00000055;
-    }
-
-    .card h2 {
-      margin-top: 0;
-      font-size: 1.1rem;
-    }
-
     .calendar {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(8, 1fr);
       gap: 0.5rem;
       margin-top: 1rem;
     }
-
-    .day {
-      background: var(--neutral);
-      text-align: center;
-      padding: 0.7rem;
+    .day, .summary, .day-label {
+      background: #2a2a2a;
       border-radius: 6px;
+      padding: 0.5rem;
+      text-align: center;
     }
-
-    .positive { color: var(--accent); }
-    .negative { color: var(--danger); }
-
-    .upload-section {
-      margin-top: 1rem;
+    .summary {
+      background: #1b1b1b;
+      font-weight: bold;
     }
-
-    input[type="file"] {
-      background: #222;
-      border: 1px solid #444;
-      color: #ccc;
+    .positive { color: #27ae60; }
+    .negative { color: #e74c3c; }
+    .stars.green { color: #27ae60; }
+    .stars.yellow { color: #f1c40f; }
+    .stars.red { color: #e74c3c; }
+    select, input[type="file"], input[type="text"] {
       padding: 0.4rem;
-      border-radius: 5px;
+      border-radius: 4px;
+      margin-right: 0.5rem;
     }
-
-    .stars {
-      font-size: 0.8rem;
-      margin-top: 0.2rem;
+    button {
+      padding: 0.4rem 1rem;
+      background: #27ae60;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
     }
-
-    .stars span {
-      color: gray;
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
     }
-
-    .stars.green span { color: var(--star-green); }
-    .stars.yellow span { color: var(--star-yellow); }
-    .stars.red span { color: var(--star-red); }
-
-    @media (max-width: 600px) {
-      .calendar { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Trading Dashboard</h1>
-    <div class="upload-section">
-      <label for="fileInput">Ladda upp statement:</label>
-      <input type="file" id="fileInput" accept=".htm,.html">
-    </div>
-  </header>
+  <h1>Trading Journal</h1>
+
+  <div class="journal-section">
+    <label for="journalSelect">Välj journal:</label>
+    <select id="journalSelect"></select>
+    <input type="text" id="newJournalName" placeholder="Ny journal">
+    <button onclick="createJournal()">Skapa</button>
+  </div>
+
+  <div class="upload-section">
+    <label for="fileInput">Ladda upp statement:</label>
+    <input type="file" id="fileInput" accept=".htm,.html">
+  </div>
 
   <section class="dashboard">
-    <div class="card"><h2>Net Return</h2><div id="netReturn">-</div></div>
-    <div class="card"><h2>Winrate</h2><div id="winrate">-</div></div>
-    <div class="card"><h2>Avg P&L</h2><div id="avgPL">-</div></div>
-    <div class="card"><h2>Profit Factor</h2><div id="profitFactor">-</div></div>
-    <div class="card"><h2>Biggest Winner</h2><div id="maxWin">-</div></div>
-    <div class="card"><h2>Biggest Loser</h2><div id="maxLoss">-</div></div>
-    <div class="card"><h2>Total Trades</h2><div id="totalTrades">-</div></div>
-    <div class="card"><h2>Avg. Per Day</h2><div id="avgPerDay">-</div></div>
+    <div class="card"><h3>Net Return</h3><div id="netReturn">-</div></div>
+    <div class="card"><h3>Winrate</h3><div id="winrate">-</div></div>
+    <div class="card"><h3>Avg P&L</h3><div id="avgPL">-</div></div>
+    <div class="card"><h3>Total Trades</h3><div id="totalTrades">-</div></div>
   </section>
 
-  <h2 style="margin-top: 2rem">Profit Calendar</h2>
+  <h2>Profit Calendar</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <button onclick="changeMonth(-1)">←</button>
+    <h3 id="monthLabel">Månad</h3>
+    <button onclick="changeMonth(1)">→</button>
+  </div>
   <div class="calendar" id="calendar"></div>
+  <div id="monthSummary" class="summary" style="margin-top: 1rem;"></div>
 
   <script>
-    const getStoredRatings = () => JSON.parse(localStorage.getItem('tradeRatings') || '{}');
-    const saveRatings = ratings => localStorage.setItem('tradeRatings', JSON.stringify(ratings));
+    let journals = JSON.parse(localStorage.getItem('journals') || '{}');
+    let currentJournal = localStorage.getItem('currentJournal') || '';
+    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    let displayDate = new Date();
+
+    function populateJournals() {
+      const select = document.getElementById('journalSelect');
+      select.innerHTML = '';
+      Object.keys(journals).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (name === currentJournal) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function createJournal() {
+      const name = document.getElementById('newJournalName').value.trim();
+      if (name && !journals[name]) {
+        journals[name] = { trades: [], ratings: {} };
+        currentJournal = name;
+        localStorage.setItem('journals', JSON.stringify(journals));
+        localStorage.setItem('currentJournal', name);
+        populateJournals();
+        renderDashboard();
+      }
+    }
+
+    document.getElementById('journalSelect').addEventListener('change', e => {
+      currentJournal = e.target.value;
+      localStorage.setItem('currentJournal', currentJournal);
+      renderDashboard();
+    });
 
     document.getElementById('fileInput').addEventListener('change', function (e) {
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file || !currentJournal) return;
       const reader = new FileReader();
       reader.onload = function (event) {
         const html = event.target.result;
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const rows = Array.from(doc.querySelectorAll('table tr'));
-
         const trades = [];
         rows.forEach(row => {
           const cells = row.querySelectorAll('td');
@@ -147,26 +149,68 @@
             trades.push({ date, profit });
           }
         });
+        journals[currentJournal].trades = trades;
+        localStorage.setItem('journals', JSON.stringify(journals));
+        renderDashboard();
+      };
+      reader.readAsText(file);
+    });
 
-        const grouped = {};
-        trades.forEach(t => {
-          if (!grouped[t.date]) grouped[t.date] = [];
-          grouped[t.date].push(t);
-        });
+    function changeMonth(delta) {
+      displayDate.setMonth(displayDate.getMonth() + delta);
+      renderDashboard();
+    }
 
-        const ratings = getStoredRatings();
+    function renderDashboard() {
+      const data = journals[currentJournal];
+      if (!data) return;
+      const trades = data.trades || [];
+      const ratings = data.ratings || {};
+      const grouped = {};
+      trades.forEach(t => {
+        if (!grouped[t.date]) grouped[t.date] = [];
+        grouped[t.date].push(t);
+      });
 
-        // Calendar
-        const cal = document.getElementById('calendar');
-        cal.innerHTML = '';
-        const days = Array.from({ length: 31 }, (_, i) => i + 1);
-        days.forEach(day => {
-          const d = `2023-09-${String(day).padStart(2, '0')}`;
-          const tradesOfDay = grouped[d] || [];
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+      const monthSummary = document.getElementById('monthSummary');
+
+      weekdays.forEach(w => {
+        const label = document.createElement('div');
+        label.className = 'day-label';
+        label.textContent = w;
+        calendar.appendChild(label);
+      });
+      calendar.appendChild(document.createElement('div'));
+
+      const year = displayDate.getFullYear();
+      const month = displayDate.getMonth();
+      const monthName = displayDate.toLocaleString('sv-SE', { month: 'long', year: 'numeric' });
+      document.getElementById('monthLabel').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+      const firstDay = new Date(year, month, 1);
+      const startOffset = (firstDay.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const cells = [];
+      for (let i = 0; i < startOffset; i++) cells.push(null);
+      for (let day = 1; day <= daysInMonth; day++) cells.push(day);
+      while (cells.length % 7 !== 0) cells.push(null);
+
+      let monthlyProfit = 0;
+      let monthlyTrades = 0;
+
+      for (let i = 0; i < cells.length; i += 7) {
+        let weekProfit = 0;
+        let weekTrades = 0;
+        for (let j = 0; j < 7; j++) {
+          const day = cells[i + j];
+          const dateKey = day ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
+          const tradesOfDay = dateKey ? grouped[dateKey] || [] : [];
           const totalProfit = tradesOfDay.reduce((a, b) => a + b.profit, 0);
-
           const avgRating = tradesOfDay.length
-            ? tradesOfDay.reduce((a, b) => a + (ratings[`${d}_${b.profit}`] || 0), 0) / tradesOfDay.length
+            ? tradesOfDay.reduce((a, b) => a + (ratings[`${dateKey}_${b.profit}`] || 0), 0) / tradesOfDay.length
             : null;
 
           let starColor = '';
@@ -180,44 +224,52 @@
 
           const div = document.createElement('div');
           div.className = 'day';
-          div.innerHTML = `<strong>${day}</strong><br>` +
-            (tradesOfDay.length ? `<span class="${totalProfit >= 0 ? 'positive' : 'negative'}">€${totalProfit.toFixed(2)}</span>` : 'No Trades') + stars;
+          if (day) {
+            div.innerHTML = `<strong>${day}</strong><br>` +
+              (tradesOfDay.length ? `<span class="${totalProfit >= 0 ? 'positive' : 'negative'}">€${totalProfit.toFixed(2)}</span><br>${tradesOfDay.length} trade${tradesOfDay.length > 1 ? 's' : ''}` : 'No Trades') + stars;
+            div.onclick = () => {
+              tradesOfDay.forEach(t => {
+                const key = `${dateKey}_${t.profit}`;
+                const current = ratings[key] || 0;
+                const rate = prompt(`Betyg för trade €${t.profit} (1-5):`, current);
+                const r = parseInt(rate);
+                if (r >= 1 && r <= 5) {
+                  ratings[key] = r;
+                  journals[currentJournal].ratings = ratings;
+                  localStorage.setItem('journals', JSON.stringify(journals));
+                  renderDashboard();
+                }
+              });
+            };
+            weekProfit += totalProfit;
+            weekTrades += tradesOfDay.length;
+            monthlyProfit += totalProfit;
+            monthlyTrades += tradesOfDay.length;
+          }
+          calendar.appendChild(div);
+        }
+        const sum = document.createElement('div');
+        sum.className = 'summary';
+        sum.innerHTML = weekTrades > 0 ? `€${weekProfit.toFixed(2)}<br>${weekTrades} trades` : '';
+        calendar.appendChild(sum);
+      }
 
-          div.onclick = () => {
-            tradesOfDay.forEach(t => {
-              const key = `${d}_${t.profit}`;
-              const current = ratings[key] || 0;
-              const rate = prompt(`Betyg för trade €${t.profit} (1-5):`, current);
-              const r = parseInt(rate);
-              if (r >= 1 && r <= 5) {
-                ratings[key] = r;
-                saveRatings(ratings);
-                location.reload();
-              }
-            });
-          };
+      monthSummary.innerHTML = monthlyTrades > 0
+        ? `🗓️ <strong>Månadsresultat:</strong> €${monthlyProfit.toFixed(2)} — ${monthlyTrades} trades`
+        : '';
 
-          cal.appendChild(div);
-        });
+      const profits = trades.map(t => t.profit);
+      const winrate = trades.filter(t => t.profit > 0).length / trades.length * 100;
+      const avg = profits.reduce((a, b) => a + b, 0) / trades.length;
 
-        // Stats
-        const profits = trades.map(t => t.profit);
-        const winrate = (trades.filter(t => t.profit > 0).length / trades.length) * 100;
-        const avg = profits.reduce((a, b) => a + b, 0) / trades.length;
+      document.getElementById('netReturn').textContent = `€${profits.reduce((a, b) => a + b, 0).toFixed(2)}`;
+      document.getElementById('winrate').textContent = `${winrate.toFixed(2)}%`;
+      document.getElementById('avgPL').textContent = `€${avg.toFixed(2)}`;
+      document.getElementById('totalTrades').textContent = trades.length;
+    }
 
-        document.getElementById('netReturn').textContent = `€${profits.reduce((a, b) => a + b, 0).toFixed(2)}`;
-        document.getElementById('winrate').textContent = `${winrate.toFixed(2)}%`;
-        document.getElementById('avgPL').textContent = `€${avg.toFixed(2)}`;
-        document.getElementById('profitFactor').textContent = `${(profits.filter(p => p > 0).reduce((a, b) => a + b, 0) / Math.abs(profits.filter(p => p < 0).reduce((a, b) => a + b, 0))).toFixed(2)}`;
-        document.getElementById('maxWin').textContent = `€${Math.max(...profits).toFixed(2)}`;
-        document.getElementById('maxLoss').textContent = `€${Math.min(...profits).toFixed(2)}`;
-        document.getElementById('totalTrades').textContent = trades.length;
-
-        const dates = [...new Set(trades.map(t => t.date))];
-        document.getElementById('avgPerDay').textContent = `€${(profits.reduce((a, b) => a + b, 0) / dates.length).toFixed(2)}`;
-      };
-      reader.readAsText(file);
-    });
+    populateJournals();
+    if (currentJournal) renderDashboard();
   </script>
 </body>
 </html>
