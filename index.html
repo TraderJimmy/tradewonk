@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Dashboard</title>
+  <style>
+    :root {
+      --bg: #111;
+      --text: #eee;
+      --card-bg: #1e1e1e;
+      --accent: #27ae60;
+      --danger: #e74c3c;
+      --neutral: #555;
+      --star-green: #27ae60;
+      --star-yellow: #f1c40f;
+      --star-red: #e74c3c;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00000055;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .day {
+      background: var(--neutral);
+      text-align: center;
+      padding: 0.7rem;
+      border-radius: 6px;
+    }
+
+    .positive { color: var(--accent); }
+    .negative { color: var(--danger); }
+
+    .upload-section {
+      margin-top: 1rem;
+    }
+
+    input[type="file"] {
+      background: #222;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 0.4rem;
+      border-radius: 5px;
+    }
+
+    .stars {
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .stars span {
+      color: gray;
+    }
+
+    .stars.green span { color: var(--star-green); }
+    .stars.yellow span { color: var(--star-yellow); }
+    .stars.red span { color: var(--star-red); }
+
+    @media (max-width: 600px) {
+      .calendar { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trading Dashboard</h1>
+    <div class="upload-section">
+      <label for="fileInput">Ladda upp statement:</label>
+      <input type="file" id="fileInput" accept=".htm,.html">
+    </div>
+  </header>
+
+  <section class="dashboard">
+    <div class="card"><h2>Net Return</h2><div id="netReturn">-</div></div>
+    <div class="card"><h2>Winrate</h2><div id="winrate">-</div></div>
+    <div class="card"><h2>Avg P&L</h2><div id="avgPL">-</div></div>
+    <div class="card"><h2>Profit Factor</h2><div id="profitFactor">-</div></div>
+    <div class="card"><h2>Biggest Winner</h2><div id="maxWin">-</div></div>
+    <div class="card"><h2>Biggest Loser</h2><div id="maxLoss">-</div></div>
+    <div class="card"><h2>Total Trades</h2><div id="totalTrades">-</div></div>
+    <div class="card"><h2>Avg. Per Day</h2><div id="avgPerDay">-</div></div>
+  </section>
+
+  <h2 style="margin-top: 2rem">Profit Calendar</h2>
+  <div class="calendar" id="calendar"></div>
+
+  <script>
+    const getStoredRatings = () => JSON.parse(localStorage.getItem('tradeRatings') || '{}');
+    const saveRatings = ratings => localStorage.setItem('tradeRatings', JSON.stringify(ratings));
+
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const html = event.target.result;
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const rows = Array.from(doc.querySelectorAll('table tr'));
+
+        const trades = [];
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length >= 14 && /\d{4}\.\d{2}\.\d{2}/.test(cells[1].textContent)) {
+            const date = cells[1].textContent.split(' ')[0].replaceAll('.', '-');
+            const profit = parseFloat(cells[13].textContent.replace(/[\s€]/g, '').replace(',', '.'));
+            trades.push({ date, profit });
+          }
+        });
+
+        const grouped = {};
+        trades.forEach(t => {
+          if (!grouped[t.date]) grouped[t.date] = [];
+          grouped[t.date].push(t);
+        });
+
+        const ratings = getStoredRatings();
+
+        // Calendar
+        const cal = document.getElementById('calendar');
+        cal.innerHTML = '';
+        const days = Array.from({ length: 31 }, (_, i) => i + 1);
+        days.forEach(day => {
+          const d = `2023-09-${String(day).padStart(2, '0')}`;
+          const tradesOfDay = grouped[d] || [];
+          const totalProfit = tradesOfDay.reduce((a, b) => a + b.profit, 0);
+
+          const avgRating = tradesOfDay.length
+            ? tradesOfDay.reduce((a, b) => a + (ratings[`${d}_${b.profit}`] || 0), 0) / tradesOfDay.length
+            : null;
+
+          let starColor = '';
+          if (avgRating >= 4) starColor = 'green';
+          else if (avgRating >= 3) starColor = 'yellow';
+          else if (avgRating > 0) starColor = 'red';
+
+          const stars = avgRating
+            ? `<div class="stars ${starColor}">` + '★'.repeat(Math.round(avgRating)) + '</div>'
+            : '';
+
+          const div = document.createElement('div');
+          div.className = 'day';
+          div.innerHTML = `<strong>${day}</strong><br>` +
+            (tradesOfDay.length ? `<span class="${totalProfit >= 0 ? 'positive' : 'negative'}">€${totalProfit.toFixed(2)}</span>` : 'No Trades') + stars;
+
+          div.onclick = () => {
+            tradesOfDay.forEach(t => {
+              const key = `${d}_${t.profit}`;
+              const current = ratings[key] || 0;
+              const rate = prompt(`Betyg för trade €${t.profit} (1-5):`, current);
+              const r = parseInt(rate);
+              if (r >= 1 && r <= 5) {
+                ratings[key] = r;
+                saveRatings(ratings);
+                location.reload();
+              }
+            });
+          };
+
+          cal.appendChild(div);
+        });
+
+        // Stats
+        const profits = trades.map(t => t.profit);
+        const winrate = (trades.filter(t => t.profit > 0).length / trades.length) * 100;
+        const avg = profits.reduce((a, b) => a + b, 0) / trades.length;
+
+        document.getElementById('netReturn').textContent = `€${profits.reduce((a, b) => a + b, 0).toFixed(2)}`;
+        document.getElementById('winrate').textContent = `${winrate.toFixed(2)}%`;
+        document.getElementById('avgPL').textContent = `€${avg.toFixed(2)}`;
+        document.getElementById('profitFactor').textContent = `${(profits.filter(p => p > 0).reduce((a, b) => a + b, 0) / Math.abs(profits.filter(p => p < 0).reduce((a, b) => a + b, 0))).toFixed(2)}`;
+        document.getElementById('maxWin').textContent = `€${Math.max(...profits).toFixed(2)}`;
+        document.getElementById('maxLoss').textContent = `€${Math.min(...profits).toFixed(2)}`;
+        document.getElementById('totalTrades').textContent = trades.length;
+
+        const dates = [...new Set(trades.map(t => t.date))];
+        document.getElementById('avgPerDay').textContent = `€${(profits.reduce((a, b) => a + b, 0) / dates.length).toFixed(2)}`;
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
