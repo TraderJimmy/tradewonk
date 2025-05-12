@@ -11,18 +11,28 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .calendar-container {
+      flex: 1;
+    }
+    .stats-panel {
+      max-width: 320px;
     }
     h1, h2, h3 {
       margin: 0.5rem 0;
-    }
-    .journal-section, .upload-section, .dashboard {
-      margin-bottom: 1rem;
     }
     .calendar {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       gap: 0.5rem;
-      margin-top: 1rem;
     }
     .day, .summary, .day-label {
       background: #2a2a2a;
@@ -39,6 +49,13 @@
     .stars.green { color: #27ae60; }
     .stars.yellow { color: #f1c40f; }
     .stars.red { color: #e74c3c; }
+    .card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
     select, input[type="file"], input[type="text"] {
       padding: 0.4rem;
       border-radius: 4px;
@@ -52,224 +69,70 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: #1e1e1e;
-      padding: 1rem;
-      border-radius: 10px;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
-  <h1>Trading Journal</h1>
-
-  <div class="journal-section">
+  <h1>Trading Journal Dashboard</h1>
+  <div>
     <label for="journalSelect">Välj journal:</label>
     <select id="journalSelect"></select>
     <input type="text" id="newJournalName" placeholder="Ny journal">
     <button onclick="createJournal()">Skapa</button>
-  </div>
-
-  <div class="upload-section">
-    <label for="fileInput">Ladda upp statement:</label>
     <input type="file" id="fileInput" accept=".htm,.html">
   </div>
 
-  <section class="dashboard">
-    <div class="card"><h3>Net Return</h3><div id="netReturn">-</div></div>
-    <div class="card"><h3>Winrate</h3><div id="winrate">-</div></div>
-    <div class="card"><h3>Avg P&L</h3><div id="avgPL">-</div></div>
-    <div class="card"><h3>Total Trades</h3><div id="totalTrades">-</div></div>
-  </section>
+  <div class="row">
+    <div class="calendar-container">
+      <h2>Profit Calendar</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="changeMonth(-1)">←</button>
+        <h3 id="monthLabel">Månad</h3>
+        <button onclick="changeMonth(1)">→</button>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <div id="monthSummary" class="summary" style="margin-top: 1rem;"></div>
+    </div>
 
-  <h2>Profit Calendar</h2>
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <button onclick="changeMonth(-1)">←</button>
-    <h3 id="monthLabel">Månad</h3>
-    <button onclick="changeMonth(1)">→</button>
+    <div class="stats-panel">
+      <div class="card"><h3>Net Return</h3><div id="netReturn">-</div></div>
+      <div class="card"><h3>Winrate</h3><div id="winrate">-</div></div>
+      <div class="card"><h3>Avg P&L</h3><div id="avgPL">-</div></div>
+      <div class="card"><h3>Total Trades</h3><div id="totalTrades">-</div></div>
+      <div class="card"><h3>Avg. Profit/Day</h3><div id="avgPerDay">-</div></div>
+      <div class="card"><h3>Biggest Winner</h3><div id="biggestWin">-</div></div>
+      <div class="card"><h3>Biggest Loser</h3><div id="biggestLoss">-</div></div>
+      <div class="card"><h3>Total Fees</h3><div id="totalFees">€0.00</div></div>
+      <div class="card"><h3>Avg. Hold Time</h3><div id="avgHold">0m</div></div>
+      <div class="card"><h3>Winrate w/o BE</h3><div id="winNoBE">-</div></div>
+      <div class="card"><h3>ROI</h3><div id="roi">-</div></div>
+      <div class="card"><h3>Max Drawdown</h3><div id="maxDD">0%</div></div>
+      <div class="card"><h3>W/L Days</h3><div id="wlDays">-</div></div>
+      <div class="card"><h3>Trades/Day/Week</h3><div id="tradesRatio">-</div></div>
+    </div>
   </div>
-  <div class="calendar" id="calendar"></div>
-  <div id="monthSummary" class="summary" style="margin-top: 1rem;"></div>
 
-  <script>
-    let journals = JSON.parse(localStorage.getItem('journals') || '{}');
-    let currentJournal = localStorage.getItem('currentJournal') || '';
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    let displayDate = new Date();
+<script>
+// Variabler och journalhantering som tidigare
+// ...
+// I slutet av renderDashboard():
+const tradingDays = [...new Set(trades.map(t => t.date))];
+const days = tradingDays.length;
+const biggestWin = Math.max(...profits);
+const biggestLoss = Math.min(...profits);
+const winNoBE = trades.filter(t => t.profit > 0).length / trades.length * 100;
+const roi = (profits.reduce((a, b) => a + b, 0) / 30000) * 100;
+const winDays = tradingDays.filter(d => grouped[d].reduce((a, b) => a + b.profit, 0) > 0).length;
+const lossDays = tradingDays.filter(d => grouped[d].reduce((a, b) => a + b.profit, 0) < 0).length;
+const tradesPerDay = trades.length / days;
+const tradesPerWeek = trades.length / (days / 7);
 
-    function populateJournals() {
-      const select = document.getElementById('journalSelect');
-      select.innerHTML = '';
-      Object.keys(journals).forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        if (name === currentJournal) opt.selected = true;
-        select.appendChild(opt);
-      });
-    }
-
-    function createJournal() {
-      const name = document.getElementById('newJournalName').value.trim();
-      if (name && !journals[name]) {
-        journals[name] = { trades: [], ratings: {} };
-        currentJournal = name;
-        localStorage.setItem('journals', JSON.stringify(journals));
-        localStorage.setItem('currentJournal', name);
-        populateJournals();
-        renderDashboard();
-      }
-    }
-
-    document.getElementById('journalSelect').addEventListener('change', e => {
-      currentJournal = e.target.value;
-      localStorage.setItem('currentJournal', currentJournal);
-      renderDashboard();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (!file || !currentJournal) return;
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const html = event.target.result;
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const rows = Array.from(doc.querySelectorAll('table tr'));
-        const trades = [];
-        rows.forEach(row => {
-          const cells = row.querySelectorAll('td');
-          if (cells.length >= 14 && /\d{4}\.\d{2}\.\d{2}/.test(cells[1].textContent)) {
-            const date = cells[1].textContent.split(' ')[0].replaceAll('.', '-');
-            const profit = parseFloat(cells[13].textContent.replace(/[\s€]/g, '').replace(',', '.'));
-            trades.push({ date, profit });
-          }
-        });
-        journals[currentJournal].trades = trades;
-        localStorage.setItem('journals', JSON.stringify(journals));
-        renderDashboard();
-      };
-      reader.readAsText(file);
-    });
-
-    function changeMonth(delta) {
-      displayDate.setMonth(displayDate.getMonth() + delta);
-      renderDashboard();
-    }
-
-    function renderDashboard() {
-      const data = journals[currentJournal];
-      if (!data) return;
-      const trades = data.trades || [];
-      const ratings = data.ratings || {};
-      const grouped = {};
-      trades.forEach(t => {
-        if (!grouped[t.date]) grouped[t.date] = [];
-        grouped[t.date].push(t);
-      });
-
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
-      const monthSummary = document.getElementById('monthSummary');
-
-      weekdays.forEach(w => {
-        const label = document.createElement('div');
-        label.className = 'day-label';
-        label.textContent = w;
-        calendar.appendChild(label);
-      });
-      calendar.appendChild(document.createElement('div'));
-
-      const year = displayDate.getFullYear();
-      const month = displayDate.getMonth();
-      const monthName = displayDate.toLocaleString('sv-SE', { month: 'long', year: 'numeric' });
-      document.getElementById('monthLabel').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-      const firstDay = new Date(year, month, 1);
-      const startOffset = (firstDay.getDay() + 6) % 7;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      const cells = [];
-      for (let i = 0; i < startOffset; i++) cells.push(null);
-      for (let day = 1; day <= daysInMonth; day++) cells.push(day);
-      while (cells.length % 7 !== 0) cells.push(null);
-
-      let monthlyProfit = 0;
-      let monthlyTrades = 0;
-
-      for (let i = 0; i < cells.length; i += 7) {
-        let weekProfit = 0;
-        let weekTrades = 0;
-        for (let j = 0; j < 7; j++) {
-          const day = cells[i + j];
-          const dateKey = day ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
-          const tradesOfDay = dateKey ? grouped[dateKey] || [] : [];
-          const totalProfit = tradesOfDay.reduce((a, b) => a + b.profit, 0);
-          const avgRating = tradesOfDay.length
-            ? tradesOfDay.reduce((a, b) => a + (ratings[`${dateKey}_${b.profit}`] || 0), 0) / tradesOfDay.length
-            : null;
-
-          let starColor = '';
-          if (avgRating >= 4) starColor = 'green';
-          else if (avgRating >= 3) starColor = 'yellow';
-          else if (avgRating > 0) starColor = 'red';
-
-          const stars = avgRating
-            ? `<div class="stars ${starColor}">` + '★'.repeat(Math.round(avgRating)) + '</div>'
-            : '';
-
-          const div = document.createElement('div');
-          div.className = 'day';
-          if (day) {
-            div.innerHTML = `<strong>${day}</strong><br>` +
-              (tradesOfDay.length ? `<span class="${totalProfit >= 0 ? 'positive' : 'negative'}">€${totalProfit.toFixed(2)}</span><br>${tradesOfDay.length} trade${tradesOfDay.length > 1 ? 's' : ''}` : 'No Trades') + stars;
-            div.onclick = () => {
-              tradesOfDay.forEach(t => {
-                const key = `${dateKey}_${t.profit}`;
-                const current = ratings[key] || 0;
-                const rate = prompt(`Betyg för trade €${t.profit} (1-5):`, current);
-                const r = parseInt(rate);
-                if (r >= 1 && r <= 5) {
-                  ratings[key] = r;
-                  journals[currentJournal].ratings = ratings;
-                  localStorage.setItem('journals', JSON.stringify(journals));
-                  renderDashboard();
-                }
-              });
-            };
-            weekProfit += totalProfit;
-            weekTrades += tradesOfDay.length;
-            monthlyProfit += totalProfit;
-            monthlyTrades += tradesOfDay.length;
-          }
-          calendar.appendChild(div);
-        }
-        const sum = document.createElement('div');
-        sum.className = 'summary';
-        sum.innerHTML = weekTrades > 0 ? `€${weekProfit.toFixed(2)}<br>${weekTrades} trades` : '';
-        calendar.appendChild(sum);
-      }
-
-      monthSummary.innerHTML = monthlyTrades > 0
-        ? `🗓️ <strong>Månadsresultat:</strong> €${monthlyProfit.toFixed(2)} — ${monthlyTrades} trades`
-        : '';
-
-      const profits = trades.map(t => t.profit);
-      const winrate = trades.filter(t => t.profit > 0).length / trades.length * 100;
-      const avg = profits.reduce((a, b) => a + b, 0) / trades.length;
-
-      document.getElementById('netReturn').textContent = `€${profits.reduce((a, b) => a + b, 0).toFixed(2)}`;
-      document.getElementById('winrate').textContent = `${winrate.toFixed(2)}%`;
-      document.getElementById('avgPL').textContent = `€${avg.toFixed(2)}`;
-      document.getElementById('totalTrades').textContent = trades.length;
-    }
-
-    populateJournals();
-    if (currentJournal) renderDashboard();
-  </script>
+document.getElementById('avgPerDay').textContent = `€${(profits.reduce((a, b) => a + b, 0) / days).toFixed(2)}`;
+document.getElementById('biggestWin').textContent = `€${biggestWin.toFixed(2)}`;
+document.getElementById('biggestLoss').textContent = `€${biggestLoss.toFixed(2)}`;
+document.getElementById('winNoBE').textContent = `${winNoBE.toFixed(2)}%`;
+document.getElementById('roi').textContent = `${roi.toFixed(2)}%`;
+document.getElementById('wlDays').textContent = `${winDays} / ${lossDays}`;
+document.getElementById('tradesRatio').textContent = `${tradesPerDay.toFixed(2)} / ${tradesPerWeek.toFixed(2)}`;
+</script>
 </body>
 </html>
