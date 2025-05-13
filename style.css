@@ -1,4 +1,4 @@
-/* Grundstil */
+/* Grundinställningar för sidan */
 body {
   background-color: #111;
   color: #eee;
@@ -10,7 +10,7 @@ body {
   gap: 1rem;
 }
 
-/* Layout-rad */
+/* Layout-rader */
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -25,37 +25,37 @@ body {
   max-width: 320px;
 }
 
-/* Rubriker */
-h1, h2, h3 {
-  margin: 0.5rem 0;
-}
-
-/* Kalenderlayout */
+/* Kalendern */
 .calendar {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 0.5rem;
 }
 
+/* Dagar i kalendern */
 .day, .summary, .day-label {
   background: #2a2a2a;
   border-radius: 6px;
   padding: 0.5rem;
   text-align: center;
 }
+
+/* Sammanfattningskolumn (söndagar) */
 .summary {
   background: #1b1b1b;
   font-weight: bold;
 }
 
-/* Färgkodningar */
+/* Färg för vinst/förlust */
 .positive { color: #27ae60; }
 .negative { color: #e74c3c; }
+
+/* Färg för stjärnbetyg */
 .stars.green { color: #27ae60; }
 .stars.yellow { color: #f1c40f; }
 .stars.red { color: #e74c3c; }
 
-/* Informationskort */
+/* Kort för statistik */
 .card {
   background: #1e1e1e;
   padding: 1rem;
@@ -70,6 +70,7 @@ select, input[type="file"], input[type="text"] {
   border-radius: 4px;
   margin-right: 0.5rem;
 }
+
 button {
   padding: 0.4rem 1rem;
   background: #27ae60;

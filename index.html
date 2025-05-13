@@ -1,60 +1,36 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trading Journal Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <!-- Länka till CSS-filen -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Trading Journal Dashboard</h1>
 
-  <!-- Välj eller skapa journal -->
+  <!-- Sektion för att välja/lägga till journal och ladda upp statement -->
   <div>
     <label for="journalSelect">Välj journal:</label>
     <select id="journalSelect"></select>
-    <input type="text" id="newJournalName" placeholder="Ny journal" />
+    <input type="text" id="newJournalName" placeholder="Ny journal">
     <button onclick="createJournal()">Skapa</button>
-    <input type="file" id="fileInput" accept=".htm,.html" />
+    <input type="file" id="fileInput" accept=".htm,.html">
   </div>
 
-  <!-- Här kommer kalendern och statistiken att visas -->
+  <!-- Här kommer kalender och statistik att visas -->
   <div class="row">
-    <div class="calendar-container" id="calendarContainer"></div>
-    <div class="stats-panel" id="statsPanel"></div>
+    <div class="calendar-container" id="calendarContainer">
+      <!-- Kalendern skapas med JavaScript -->
+    </div>
+    <div class="stats-panel" id="statsPanel">
+      <!-- Statistik skapas med JavaScript -->
+    </div>
   </div>
 
-  <!-- JavaScript -->
-  <script src="script.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="sv">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trading Journal Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>Trading Journal Dashboard</h1>
-
-  <!-- Välj eller skapa journal -->
-  <div>
-    <label for="journalSelect">Välj journal:</label>
-    <select id="journalSelect"></select>
-    <input type="text" id="newJournalName" placeholder="Ny journal" />
-    <button onclick="createJournal()">Skapa</button>
-    <input type="file" id="fileInput" accept=".htm,.html" />
-  </div>
-
-  <!-- Här kommer kalendern och statistiken att visas -->
-  <div class="row">
-    <div class="calendar-container" id="calendarContainer"></div>
-    <div class="stats-panel" id="statsPanel"></div>
-  </div>
-
-  <!-- JavaScript -->
+  <!-- Länka till JavaScript-filen -->
   <script src="script.js"></script>
 </body>
 </html>
