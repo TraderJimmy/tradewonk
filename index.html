@@ -1,138 +1,60 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Trading Journal Dashboard</title>
-  <style>
-    body {
-      background-color: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
-    .calendar-container {
-      flex: 1;
-    }
-    .stats-panel {
-      max-width: 320px;
-    }
-    h1, h2, h3 {
-      margin: 0.5rem 0;
-    }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 0.5rem;
-    }
-    .day, .summary, .day-label {
-      background: #2a2a2a;
-      border-radius: 6px;
-      padding: 0.5rem;
-      text-align: center;
-    }
-    .summary {
-      background: #1b1b1b;
-      font-weight: bold;
-    }
-    .positive { color: #27ae60; }
-    .negative { color: #e74c3c; }
-    .stars.green { color: #27ae60; }
-    .stars.yellow { color: #f1c40f; }
-    .stars.red { color: #e74c3c; }
-    .card {
-      background: #1e1e1e;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    select, input[type="file"], input[type="text"] {
-      padding: 0.4rem;
-      border-radius: 4px;
-      margin-right: 0.5rem;
-    }
-    button {
-      padding: 0.4rem 1rem;
-      background: #27ae60;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Trading Journal Dashboard</h1>
+
+  <!-- Välj eller skapa journal -->
   <div>
     <label for="journalSelect">Välj journal:</label>
     <select id="journalSelect"></select>
-    <input type="text" id="newJournalName" placeholder="Ny journal">
+    <input type="text" id="newJournalName" placeholder="Ny journal" />
     <button onclick="createJournal()">Skapa</button>
-    <input type="file" id="fileInput" accept=".htm,.html">
+    <input type="file" id="fileInput" accept=".htm,.html" />
   </div>
 
+  <!-- Här kommer kalendern och statistiken att visas -->
   <div class="row">
-    <div class="calendar-container">
-      <h2>Profit Calendar</h2>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <button onclick="changeMonth(-1)">←</button>
-        <h3 id="monthLabel">Månad</h3>
-        <button onclick="changeMonth(1)">→</button>
-      </div>
-      <div class="calendar" id="calendar"></div>
-      <div id="monthSummary" class="summary" style="margin-top: 1rem;"></div>
-    </div>
-
-    <div class="stats-panel">
-      <div class="card"><h3>Net Return</h3><div id="netReturn">-</div></div>
-      <div class="card"><h3>Winrate</h3><div id="winrate">-</div></div>
-      <div class="card"><h3>Avg P&L</h3><div id="avgPL">-</div></div>
-      <div class="card"><h3>Total Trades</h3><div id="totalTrades">-</div></div>
-      <div class="card"><h3>Avg. Profit/Day</h3><div id="avgPerDay">-</div></div>
-      <div class="card"><h3>Biggest Winner</h3><div id="biggestWin">-</div></div>
-      <div class="card"><h3>Biggest Loser</h3><div id="biggestLoss">-</div></div>
-      <div class="card"><h3>Total Fees</h3><div id="totalFees">€0.00</div></div>
-      <div class="card"><h3>Avg. Hold Time</h3><div id="avgHold">0m</div></div>
-      <div class="card"><h3>Winrate w/o BE</h3><div id="winNoBE">-</div></div>
-      <div class="card"><h3>ROI</h3><div id="roi">-</div></div>
-      <div class="card"><h3>Max Drawdown</h3><div id="maxDD">0%</div></div>
-      <div class="card"><h3>W/L Days</h3><div id="wlDays">-</div></div>
-      <div class="card"><h3>Trades/Day/Week</h3><div id="tradesRatio">-</div></div>
-    </div>
+    <div class="calendar-container" id="calendarContainer"></div>
+    <div class="stats-panel" id="statsPanel"></div>
   </div>
 
-<script>
-// Variabler och journalhantering som tidigare
-// ...
-// I slutet av renderDashboard():
-const tradingDays = [...new Set(trades.map(t => t.date))];
-const days = tradingDays.length;
-const biggestWin = Math.max(...profits);
-const biggestLoss = Math.min(...profits);
-const winNoBE = trades.filter(t => t.profit > 0).length / trades.length * 100;
-const roi = (profits.reduce((a, b) => a + b, 0) / 30000) * 100;
-const winDays = tradingDays.filter(d => grouped[d].reduce((a, b) => a + b.profit, 0) > 0).length;
-const lossDays = tradingDays.filter(d => grouped[d].reduce((a, b) => a + b.profit, 0) < 0).length;
-const tradesPerDay = trades.length / days;
-const tradesPerWeek = trades.length / (days / 7);
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trading Journal Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Trading Journal Dashboard</h1>
 
-document.getElementById('avgPerDay').textContent = `€${(profits.reduce((a, b) => a + b, 0) / days).toFixed(2)}`;
-document.getElementById('biggestWin').textContent = `€${biggestWin.toFixed(2)}`;
-document.getElementById('biggestLoss').textContent = `€${biggestLoss.toFixed(2)}`;
-document.getElementById('winNoBE').textContent = `${winNoBE.toFixed(2)}%`;
-document.getElementById('roi').textContent = `${roi.toFixed(2)}%`;
-document.getElementById('wlDays').textContent = `${winDays} / ${lossDays}`;
-document.getElementById('tradesRatio').textContent = `${tradesPerDay.toFixed(2)} / ${tradesPerWeek.toFixed(2)}`;
-</script>
+  <!-- Välj eller skapa journal -->
+  <div>
+    <label for="journalSelect">Välj journal:</label>
+    <select id="journalSelect"></select>
+    <input type="text" id="newJournalName" placeholder="Ny journal" />
+    <button onclick="createJournal()">Skapa</button>
+    <input type="file" id="fileInput" accept=".htm,.html" />
+  </div>
+
+  <!-- Här kommer kalendern och statistiken att visas -->
+  <div class="row">
+    <div class="calendar-container" id="calendarContainer"></div>
+    <div class="stats-panel" id="statsPanel"></div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
 </body>
 </html>
